@@ -1,0 +1,136 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+-   repo: local
+    hooks:
+    -   id: pipdeptree
+        name: pipdeptree
+        stages: [commit]
+        types: [python]
+        language: system
+        entry: bash -c "python -m pipdeptree -r -l > piptree.txt"
+        pass_filenames: false
+        always_run: true
+    -   id: lock_pipdeptree
+        name: lock_pipdeptree
+        stages: [commit]
+        types: [python]
+        language: system
+        entry: bash -c "python -m pipdeptree -f | sed 's/^[ \t]*//;s/[ \t]*$//' | sort -u > locked-requirements.txt"
+        pass_filenames: false
+        always_run: true
+    -   id: pipfreeze
+        name: pip freeze
+        stages: [commit]
+        language: system
+        entry: pip freeze > requirements.txt
+        pass_filenames: false
+        always_run: true
+
+-   repo: local
+    hooks:
+    -   id: reformat-markdown-links
+        name: Reformat Markdown Links
+        entry: python scripts/reformat_markdown_links.py
+        language: system
+#        types: [python, markdown]
+        always_run: true
+
+#- repo: https://github.com/pre-commit/mirrors-mypy
+#  rev: v1.5.1
+#  hooks:
+#    - id: mypy
+#      args: [--disallow-untyped-defs, --disallow-incomplete-defs, --disallow-untyped-calls]
+
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+    -   id: trailing-whitespace
+        always_run: true
+    -   id: end-of-file-fixer
+        always_run: true
+    -   id: check-yaml
+        always_run: true
+    -   id: check-added-large-files
+        always_run: true
+    -   id: check-json
+        always_run: true
+    -   id: check-xml
+        always_run: true
+    -   id: fix-encoding-pragma
+        always_run: true
+
+-   repo: https://github.com/econchick/interrogate
+    rev: 1.5.0
+    hooks:
+      - id: interrogate
+        name: interrogate
+        entry: interrogate -vv -i -I -M -n -C -p -P -S -s --fail-under=100 ./ --exclude "test" --exclude "scripts" --exclude "states/time_states.py" --exclude "services/main_service.py" --exclude "alembic"
+#        language: system
+        language_version: python3
+        types: [python]
+        pass_filenames: false
+        always_run: true
+
+-   repo: https://github.com/ambv/black
+    rev: 23.9.1
+    hooks:
+    -   id: black
+        args: ["--line-length", "92"]
+    exclude: alembic/|doc/|docs/|monitoring/|scripts/|tool/|\.venv/|*.md|*.sh|*.txt|*.yml|*.yaml
+
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v1.2.3
+    hooks:
+    -   id: flake8
+        args: ["--max-line-length=92", "--ignore=E712,W503"]
+    exclude: alembic/|doc/|docs/|monitoring/|scripts/|tool/|\.venv/|*.md|*.sh|*.txt|*.yml|*.yaml
+
+#-   repo: https://github.com/sqlalchemyorg/zimports/
+#    rev: v0.6.1
+#    hooks:
+#    -   id: zimports
+
+-   repo: https://github.com/miki725/importanize/
+    rev: '0.8.0-alpha2'
+    hooks:
+    - id: importanize
+#      args: [--verbose, --length=70, --formatter=grouped]
+      args: [--verbose, --config=setup.cfg]
+
+-   repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+    -   id: python-use-type-annotations
+        always_run: true
+
+-   repo: local
+    hooks:
+    -   id: unit-test
+        name: unit test
+        entry: python -m unittest discover -s test -p test*.py
+        language: system
+        types: [python]
+        pass_filenames: false
+        always_run: true
+
+-   repo: local
+    hooks:
+    -   id: pytest
+        name: pytest
+        entry: pytest
+        language: system
+        types: [python]
+        pass_filenames: false
+        always_run: true
+
+-   repo: https://github.com/jendrikseipp/vulture
+    rev: 'v2.9.1'
+    hooks:
+    -   id: vulture
+        name: vulture     # minimum confidence 60 -> for strong check
+        entry: vulture ./ --min-confidence 80 --exclude "*/alembic/*,*/docs/*,*/test/*,*/venv/*,*/.venv/*,*/.git,*/.eggs,*/.tox,*/.mypy_cache,*/.pytest_cache,*/.vscode,*/.pre-commit-config.yaml,*/.github,*/.mypy_cache,*/.pytest_cache,*/.tox,*/.eggs,*/.mypy_cache,*/.pytest_cache,*/.tox,*/.eggs,*/.mypy_cache,*/.pytest_cache,*/.tox,*/.eggs,*/.mypy_cache,*/.pytest_cache,*/.tox,*/.eggs,*/.mypy_cache,*/.pytest_cache,*/.tox,*/.eggs,*/.mypy_cache,*/.pytest_cache,*/.tox,*/.eggs,*/.mypy_cache,*/.pytest_cache,*/.tox,*/.eggs,*/.mypy_cache,*/.pytest_cache,*/.tox,*/.eggs,*/.mypy_cache,*/.pytest_cache,*/.tox,*/.eggs,*/.mypy_cache,*/.pytest_cache,*/.tox,*/.eggs,*/.mypy_cache,*/.pytest_cache,*/.tox,*/.eggs,*/.mypy_cache,*/.pytest_cache,*/.tox,*/.eggs"
+        language: system
+        types: [python]
+        pass_filenames: false
+        always_run: true
